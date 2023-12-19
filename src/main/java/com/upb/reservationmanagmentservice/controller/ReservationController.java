@@ -48,6 +48,21 @@ public class ReservationController {
         }
         return new ResponseEntity<>(reservations, HttpStatus.OK);
     }
+    /*
+        @GetMapping("/available/{scheduleId}")
+    public ResponseEntity <List<TableEntity>> getAvailableTables(@PathVariable long scheduleId){
+        List<TableEntity> tables = availabilityService.getAvailableTables(scheduleId);
+        if (tables.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(tables, HttpStatus.OK);
+    }
+    @GetMapping("/{id}/{scheduleId}")
+    public ResponseEntity <TableEntity> getTableAvailabilityByIdAndDate(@PathVariable long id, @PathVariable long scheduleId){
+        TableEntity tableEntity = availabilityService.getTableAvailabilityByIdAndDate(id, scheduleId);
+        return new ResponseEntity<>(reservationResponse, HttpStatus.OK);
+    }
+         */
 
 }
 

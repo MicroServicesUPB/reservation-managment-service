@@ -12,6 +12,7 @@ import java.util.Date;
 
 @Component
 public class ReservationEventHandler implements EventHandler {
+    @Autowired
     private NotificationService notificationService;
     @Override
     public void handle(ReservationEvent event) {

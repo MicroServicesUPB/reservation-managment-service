@@ -31,7 +31,9 @@ public class ReservationServiceImpl implements ReservationService {
     private ScheduleService scheduleService;
     @Autowired
     private EventEmitter eventEmitter;
+    @Autowired
     private AvailabilityService availabilityService;
+    @Autowired
     private ClientService clientService;
     @Override
     public long createReservation(ReservationRequest reservationRequest) {
