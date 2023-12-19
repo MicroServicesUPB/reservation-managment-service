@@ -7,11 +7,10 @@ import java.util.Date;
 
 @Data
 public class ReservationRequest {
-    private Long id;
     private Long tableId;
     private String status;
     private Date reservationTime;
     private Long quantity;
-    private Long reservationName;
+    private String reservationName;
     private Long clientId;
 }

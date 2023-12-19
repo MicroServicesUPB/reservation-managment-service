@@ -3,6 +3,8 @@ package com.upb.reservationmanagmentservice.service;
 import com.upb.reservationmanagmentservice.client.AvailabilityService;
 import com.upb.reservationmanagmentservice.client.ClientService;
 import com.upb.reservationmanagmentservice.entity.Reservation;
+import com.upb.reservationmanagmentservice.events.EventEmitter;
+import com.upb.reservationmanagmentservice.events.ReservationEvent;
 import com.upb.reservationmanagmentservice.model.ReservationRequest;
 import com.upb.reservationmanagmentservice.model.ReservationResponse;
 import com.upb.reservationmanagmentservice.repository.ReservationRepository;
@@ -27,6 +29,8 @@ public class ReservationServiceImpl implements ReservationService {
     private ReservationRepository reservationRepository;
     @Autowired
     private ScheduleService scheduleService;
+    @Autowired
+    private EventEmitter eventEmitter;
     private AvailabilityService availabilityService;
     private ClientService clientService;
     @Override
@@ -52,6 +56,8 @@ public class ReservationServiceImpl implements ReservationService {
                     .build();
             reservationRepository.save(reservation);
             scheduleService.addSchedule(reservationRequest.getReservationTime());
+        ReservationEvent reservationEvent = new ReservationEvent(reservation);
+        eventEmitter.emit(reservationEvent);
             return reservation.getId();
     }
 

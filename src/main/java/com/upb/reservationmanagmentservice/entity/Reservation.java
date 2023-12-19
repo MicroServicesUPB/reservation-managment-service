@@ -25,7 +25,7 @@ public class Reservation {
     @Column(name="QUANTITY")
     private Long quantity;
     @Column(name="RESERVATION_NAME")
-    private Long reservationName;
+    private String reservationName;
     @Column(name="STATUS")
     private String status;
     @Column(name="RESERVATION_TIME")

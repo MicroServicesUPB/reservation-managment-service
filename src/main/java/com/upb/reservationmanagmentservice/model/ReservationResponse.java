@@ -17,5 +17,5 @@ public class ReservationResponse {
     private String status;
     private Date reservationTime;
     private Long quantity;
-    private Long reservationName;
+    private String reservationName;
 }
