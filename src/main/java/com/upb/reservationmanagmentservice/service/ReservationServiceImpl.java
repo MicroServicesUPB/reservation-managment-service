@@ -4,20 +4,16 @@ import com.upb.reservationmanagmentservice.client.AvailabilityService;
 import com.upb.reservationmanagmentservice.client.ClientService;
 import com.upb.reservationmanagmentservice.entity.Reservation;
 import com.upb.reservationmanagmentservice.events.EventEmitter;
-import com.upb.reservationmanagmentservice.events.ReservationEvent;
+import com.upb.reservationmanagmentservice.events.ReservationCreatedEvent;
+import com.upb.reservationmanagmentservice.events.ReservationUpdatedEvent;
 import com.upb.reservationmanagmentservice.model.ReservationRequest;
 import com.upb.reservationmanagmentservice.model.ReservationResponse;
 import com.upb.reservationmanagmentservice.repository.ReservationRepository;
-import com.upb.reservationmanagmentservice.repository.ScheduleRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,6 +32,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Autowired
     private ClientService clientService;
     @Override
+
     public long createReservation(ReservationRequest reservationRequest) {
 
         List<ReservationResponse> reservationsList = reservationRepository.findAll().stream()
@@ -58,8 +55,8 @@ public class ReservationServiceImpl implements ReservationService {
                     .build();
             reservationRepository.save(reservation);
             scheduleService.addSchedule(reservationRequest.getReservationTime());
-        ReservationEvent reservationEvent = new ReservationEvent(reservation);
-        eventEmitter.emit(reservationEvent);
+        ReservationCreatedEvent reservationCreatedEvent = new ReservationCreatedEvent(reservation);
+        eventEmitter.emitEvent(reservationCreatedEvent);
             return reservation.getId();
     }
 
@@ -95,5 +92,39 @@ public class ReservationServiceImpl implements ReservationService {
                     return reservation;
                 }).collect(Collectors.toList());
         return reservationsList;
+    }
+
+    @Override
+    public boolean approveReservation(long id) {
+        Optional<Reservation> optionalReservation = reservationRepository.findById(id);
+
+        if (optionalReservation.isPresent()) {
+            Reservation reservation = optionalReservation.get();
+
+            if (reservation.getStatus().equals("Pending")) {
+                reservation.setStatus("Approved");
+                ReservationUpdatedEvent reservationUpdatedEvent = new ReservationUpdatedEvent(reservation,reservation.getStatus());
+                eventEmitter.emitEvent(reservationUpdatedEvent);
+                reservationRepository.save(reservation);
+
+                return true;
+            }
+        }
+        return false;
+    }
+    @Override
+    public boolean rejectReservation(long id) {
+        Optional<Reservation> optionalReservation = reservationRepository.findById(id);
+        if (optionalReservation.isPresent()) {
+            Reservation reservation = optionalReservation.get();
+            if (reservation.getStatus().equals("Pending")) {
+                reservation.setStatus("Rejected");
+                ReservationUpdatedEvent reservationUpdatedEvent = new ReservationUpdatedEvent(reservation,reservation.getStatus());
+                eventEmitter.emitEvent(reservationUpdatedEvent);
+                reservationRepository.save(reservation);
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -10,6 +10,6 @@ import java.util.Date;
 @FeignClient(name = "NOTIFICATION-SERVICE")
 public interface NotificationService {
     @PostMapping()
-    public void createNotification(@PathVariable long reservationId, @PathVariable long clientId, @PathVariable String status, @PathVariable String message, @PathVariable Date timeStamp);
+    public void createNotification(@PathVariable long reservationId, @PathVariable long clientId, @PathVariable String message, @PathVariable Date timeStamp);
 
 }

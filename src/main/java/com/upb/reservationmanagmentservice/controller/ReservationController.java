@@ -48,6 +48,27 @@ public class ReservationController {
         }
         return new ResponseEntity<>(reservations, HttpStatus.OK);
     }
+    @PutMapping("/{id}/approve")
+    public ResponseEntity<String> approveReservation(@PathVariable long id) {
+        // Assuming you have a method in your service to handle the approval
+        boolean isApproved = reservationService.approveReservation(id);
+
+        if (isApproved) {
+            return new ResponseEntity<>("Reservation approved successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failed to approve reservation", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PostMapping("/{id}/reject")
+    public ResponseEntity<String> rejectReservation(@PathVariable long id) {
+        boolean isRejected = reservationService.rejectReservation(id);
+
+        if (isRejected) {
+            return new ResponseEntity<>("Reservation rejected successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failed to reject reservation (not found or invalid state)", HttpStatus.NOT_FOUND);
+        }
+    }
     /*
         @GetMapping("/available/{scheduleId}")
     public ResponseEntity <List<TableEntity>> getAvailableTables(@PathVariable long scheduleId){

@@ -11,4 +11,7 @@ public interface ReservationService {
     List<ReservationResponse> getReservationsByDate(long scheduleId);
     List<ReservationResponse> getReservationsByTable( long tableId);
 
+    boolean approveReservation(long id);
+
+    boolean rejectReservation(long id);
 }
