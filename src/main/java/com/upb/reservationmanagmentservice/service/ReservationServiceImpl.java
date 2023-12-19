@@ -1,7 +1,7 @@
 package com.upb.reservationmanagmentservice.service;
 
 import com.upb.reservationmanagmentservice.client.AvailabilityService;
-import com.upb.reservationmanagmentservice.client.ClientService;
+import com.upb.reservationmanagmentservice.client.TableDTO;
 import com.upb.reservationmanagmentservice.entity.Reservation;
 import com.upb.reservationmanagmentservice.events.EventEmitter;
 import com.upb.reservationmanagmentservice.events.ReservationCreatedEvent;
@@ -29,20 +29,16 @@ public class ReservationServiceImpl implements ReservationService {
     private EventEmitter eventEmitter;
     @Autowired
     private AvailabilityService availabilityService;
-    @Autowired
-    private ClientService clientService;
     @Override
 
     public long createReservation(ReservationRequest reservationRequest) {
 
         List<ReservationResponse> reservationsList = reservationRepository.findAll().stream()
-                .filter((reservationEntity -> reservationEntity.getTableId().equals(reservationRequest.getTableId())&&reservationEntity.getReservationTime().equals(reservationRequest.getReservationTime())))
+                .filter((reservationEntity -> reservationEntity.getTableId().equals(reservationRequest.getTableId())&&reservationEntity.getReservationTime().equals(reservationRequest.getReservationTime())&&reservationEntity.getStatus().equals("Approved")))
                 .map(reservationEntity -> {
                     ReservationResponse reservation = new ReservationResponse();
                     return reservation;
                 }).collect(Collectors.toList());
-
-        clientService.getClientById(reservationRequest.getClientId());
 
         if(reservationRequest.getQuantity()>availabilityService.getTableQuantityById(reservationRequest.getTableId()) || reservationsList.isEmpty()) {
             throw new RuntimeException("Requested quantity exceeds available quantity for the table or isn't available at the requested time");
@@ -66,6 +62,24 @@ public class ReservationServiceImpl implements ReservationService {
         ReservationResponse reservationResponse = new ReservationResponse();
         BeanUtils.copyProperties(reservation,reservationResponse);
         return reservationResponse;
+    }
+
+    @Override
+    public List<TableDTO> getAvailableTablesByDate(String date) {
+        // Get all reservations for the given date
+        List<Reservation> reservations = reservationRepository.findAll().stream()
+                .filter(reservation -> reservation.getReservationTime().equals(date))
+                .collect(Collectors.toList());
+
+        // Get all tables
+        List<TableDTO> allTables = availabilityService.getAllTables();
+
+        // Filter out tables that have reservations for the given date
+        List<TableDTO> availableTables = allTables.stream()
+                .filter(table -> reservations.stream().noneMatch(reservation -> reservation.getTableId().equals(table.getId())))
+                .collect(Collectors.toList());
+
+        return availableTables;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.upb.reservationmanagmentservice.controller;
 
+import com.upb.reservationmanagmentservice.client.TableDTO;
 import com.upb.reservationmanagmentservice.model.ReservationRequest;
 import com.upb.reservationmanagmentservice.model.ReservationResponse;
 import com.upb.reservationmanagmentservice.service.ReservationService;
@@ -48,6 +49,15 @@ public class ReservationController {
         }
         return new ResponseEntity<>(reservations, HttpStatus.OK);
     }
+    @GetMapping("/availableOn/{scheduleId}")
+    public ResponseEntity<List<TableDTO>> getAvailableTablesByDate(@PathVariable String date) {
+        List<TableDTO> availableTables = reservationService.getAvailableTablesByDate(date);
+
+        if (availableTables.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(availableTables, HttpStatus.OK);
+    }
     @PutMapping("/{id}/approve")
     public ResponseEntity<String> approveReservation(@PathVariable long id) {
         // Assuming you have a method in your service to handle the approval
@@ -59,7 +69,7 @@ public class ReservationController {
             return new ResponseEntity<>("Failed to approve reservation", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @PostMapping("/{id}/reject")
+    @PutMapping("/{id}/reject")
     public ResponseEntity<String> rejectReservation(@PathVariable long id) {
         boolean isRejected = reservationService.rejectReservation(id);
 
